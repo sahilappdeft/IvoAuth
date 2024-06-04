@@ -1,8 +1,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, declarative_base, sessionmaker
+import os
 
-
-DATABASE_URL = "sqlite:///./test.db"
+if os.getcwd() == "/home/ubuntu/IVO":
+    DATABASE_URL = "postgresql://ivoportal:Psdnj@Eecezc3233r@localhost:5432/ivoportal"
+else:
+    DATABASE_URL = "sqlite:///./test.db"
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
