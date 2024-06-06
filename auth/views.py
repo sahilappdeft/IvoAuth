@@ -127,7 +127,7 @@ async def verify_email(verify_data: VerifyEmail, db: Session = Depends(get_db)):
     return {"message": "Email verified successfully"}
 
 
-@router.post("/login", response_model=Token)
+@router.post("/login")
 async def login(data: Login, db: Session = Depends(get_db)):
     #get user from the database
     user = get_user_by_email(data.email, db)
@@ -146,7 +146,13 @@ async def login(data: Login, db: Session = Depends(get_db)):
     access_token = create_access_token(subject={"email":user.email, "id": user.id})
     refresh_token = create_refresh_token(subject={"email":user.email, "id": user.id})
 
-    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+    return {"access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer",
+            "user":{"id":user.id,
+                    "email": user.email
+                    }
+            }
 
 
 @router.post('/send-otp', summary="Request for OTP")
