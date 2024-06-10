@@ -23,7 +23,7 @@ class Register(BaseModel):
     last_name: str
     password: constr(min_length=7)
     email: EmailStr
-    # email_verified: Optional[bool]
+    email_verified: Optional[bool] = False
 
 
 class Login(BaseModel):
