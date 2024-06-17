@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, declarative_base, sessionmaker
 import os
 
-if os.getcwd() == "/home/ubuntu/IVO":
+if os.getcwd() == "/home/ubuntu/IvoAuth":
     DATABASE_URL = "postgresql://ivoportal:Psdnj@Eecezc3233r@localhost:5432/ivoportal"
 else:
     DATABASE_URL = "sqlite:///./test.db"

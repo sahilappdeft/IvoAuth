@@ -150,7 +150,8 @@ async def login(data: Login, db: Session = Depends(get_db)):
             "refresh_token": refresh_token,
             "token_type": "bearer",
             "user":{"id":user.id,
-                    "email": user.email
+                    "email": user.email,
+                    "name": f"{user.first_name} {user.last_name}"
                     }
             }
 
