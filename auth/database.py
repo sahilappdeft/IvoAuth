@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session, declarative_base, sessionmaker
 import os
 
 if os.getcwd() == "/home/ubuntu/IvoAuth":
-    DATABASE_URL = "postgresql://ivoportal:Psdnj%%40Eecezc3233r@13.202.134.230:5432/ivoportal"
+    DATABASE_URL = "postgresql://ivoportal:Psdnj@Eecezc3233r@localhost:5432/ivoportal"
     engine = create_engine(DATABASE_URL)
 else:
     DATABASE_URL = "sqlite:///./test.db"
