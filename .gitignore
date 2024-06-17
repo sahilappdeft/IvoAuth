@@ -1,6 +1,7 @@
 venv/
 test.db
 **/__pycache__/
-**/.__pytest_cache__/
-**/versions/
+**/.pytest_cache__/
+**/versions/*
 alembic.ini
+**/__pycache__/
