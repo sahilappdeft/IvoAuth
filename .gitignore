@@ -4,4 +4,4 @@ test.db
 **/.pytest_cache__/
 **/versions/*
 alembic.ini
-**/__pycache__/
+*/__pycache__/*
