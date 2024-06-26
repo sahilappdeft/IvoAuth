@@ -73,39 +73,40 @@ async def token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
 @router.post('/signup', summary="Create new user", response_model=UserResponse)
 async def create_user(register_data: Register, db: Session = Depends(get_db)):
     # Check if the user already exists
-    existing_user = get_user_by_email(register_data.email, db)
+    user = get_user_by_email(register_data.email, db)
 
-    if existing_user:
+    if user and user.email_verified:
         raise HTTPException(status_code=400, detail="User already exists")
     
      # Generate OTP
     otp = generateOTP()
     
-    # Create the new user
-    new_user = add_user(register_data, db)
+    if not user:
+        # Create the new user
+        user = add_user(register_data, db)
     
     # create the otp for user
-    user_otp = create_or_update_otp(new_user, otp, "verify", db)
+    user_otp = create_or_update_otp(user, otp, "verify", db)
 
     # Commit the changes to the database
     db.commit()
 
     user_response_data = {
-        "id": new_user.id,
-        "created": new_user.created,
-        "updated": new_user.updated,
-        "email": new_user.email,
-        "first_name": new_user.first_name,
-        "last_name": new_user.last_name,
-        "email_verified": new_user.email_verified,
+        "id": user.id,
+        "created": user.created,
+        "updated": user.updated,
+        "email": user.email,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "email_verified": user.email_verified,
         "otp": user_otp.otp if user_otp.type == "verify" else None  # Include OTP only if the type matches the requested OTP type
     }
 
     return user_response_data
 
 
-@router.post('/verify-email', summary="Verify email with OTP")
-async def verify_email(verify_data: VerifyEmail, db: Session = Depends(get_db)):
+@router.post('/verify-otp', summary="Verify email with OTP")
+async def verify_otp(verify_data: VerifyEmail, db: Session = Depends(get_db)):
     # Retrieve the user by email
     user = get_user_by_email(verify_data.email, db)
     
@@ -113,18 +114,20 @@ async def verify_email(verify_data: VerifyEmail, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    verify_otp = get_otp(user, "verify", db)
+    verify_otp = get_otp(user, verify_data.type, db)
 
     # Check if OTP matches
     if verify_otp.otp != verify_data.otp:
         raise HTTPException(status_code=400, detail="Invalid OTP")
     
-    # Update email_verified flag to True
-    user.email_verified = True
+    if verify_data.type == "verify":
+        # Update email_verified flag to True
+        user.email_verified = True
     # user.otp = None
+    db.delete(verify_otp)
     db.commit()
     
-    return {"message": "Email verified successfully"}
+    return {"message": "Otp verified successfully"}
 
 
 @router.post("/login")

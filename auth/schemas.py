@@ -42,6 +42,7 @@ class Refresh(BaseModel):
 
 class VerifyEmail(BaseModel):
     email: EmailStr
+    type: str
     otp: str
 
 
