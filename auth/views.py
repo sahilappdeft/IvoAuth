@@ -198,15 +198,6 @@ async def reset_password_with_otp(request_data: ResetPasswordRequest, db: Sessio
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    verify_otp = get_otp(user, "forgot", db)
-    
-    if not verify_otp:
-        raise HTTPException(status_code=404, detail="Please resent otp again")
-
-    # Check if OTP matches
-    if verify_otp.otp != request_data.otp:
-        raise HTTPException(status_code=400, detail="Invalid OTP")
-    
     # Check if new password and confirm password match
     print(request_data.password, request_data.confirm_password, ":::::::::::::::::")
     if request_data.password != request_data.confirm_password:

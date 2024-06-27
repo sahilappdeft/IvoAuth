@@ -53,7 +53,6 @@ class OtpRequest(BaseModel):
 
 class ResetPasswordRequest(BaseModel):
     email: EmailStr
-    otp: str
     password: str
     confirm_password: str
 
