@@ -206,8 +206,6 @@ async def reset_password_with_otp(request_data: ResetPasswordRequest, db: Sessio
     # Update user's password
     update_user_password(user, request_data.password, db)
 
-    # Delete the verify_otp object
-    db.delete(verify_otp)
     #set otp as none
     db.commit()
     
