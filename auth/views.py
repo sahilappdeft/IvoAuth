@@ -116,6 +116,9 @@ async def verify_otp(verify_data: VerifyEmail, db: Session = Depends(get_db)):
     
     verify_otp = get_otp(user, verify_data.type, db)
 
+    if not verify_otp:
+        raise HTTPException(status_code=400, detail="Invalid OTP")
+    
     # Check if OTP matches
     if verify_otp.otp != verify_data.otp:
         raise HTTPException(status_code=400, detail="Invalid OTP")
