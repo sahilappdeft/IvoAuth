@@ -30,12 +30,4 @@ def normalize_email(email):
     """
     Normalize email address by converting domain part to lowercase.
     """
-    parts = email.strip().split('@')
-    if len(parts) != 2:
-        raise ValueError("Invalid email address format")
-    
-    local_part, domain_part = parts
-    domain_part = domain_part.lower()
-    normalized_email = f"{local_part}@{domain_part}"
-    
-    return normalized_email
+    return email.lower()

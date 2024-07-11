@@ -1,9 +1,11 @@
 from sqlalchemy.orm import Session
 from typing import Optional
 
+from fastapi import HTTPException
+
 from auth.models import User, OtpType
 from auth.schemas import Register
-from auth.utility.utilis import get_hashed_password
+from auth.utility.utilis import get_hashed_password, normalize_email
 
 def get_user_by_email(email: str, db: Session) -> Optional[User]:
     return db.query(User).filter(User.email == email).first()
@@ -12,7 +14,22 @@ def get_user_by_user_id(id: int, db: Session) -> Optional[User]:
     return db.query(User).filter(User.id == id).first()
 
 def add_user(user: Register, db: Session) -> Optional[User]:
-    db_user = User(**user.dict())
+    # Normalize email address
+    normalized_email = normalize_email(user.email)
+    
+    # Check if the user already exists
+    existing_user = db.query(User).filter(User.email == normalized_email).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="User already exists")
+
+    # Create the new user
+    db_user = User(
+        email=normalized_email,
+        password=user.password,  # Assuming this is handled securely
+        first_name=user.first_name,
+        last_name=user.last_name
+    )
+    
     db.add(db_user)
     db.commit()
     db.refresh(db_user)

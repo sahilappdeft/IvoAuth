@@ -113,6 +113,7 @@ async def verify_otp(verify_data: VerifyEmail, db: Session = Depends(get_db)):
     # Normalize email address
     normalized_email = normalize_email(verify_data.email)
     
+    print(normalized_email, ":::::::::::::::::::::")
     # Get user from the database
     user = get_user_by_email(normalized_email, db)
     
