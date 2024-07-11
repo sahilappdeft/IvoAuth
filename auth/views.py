@@ -7,6 +7,8 @@ from jose import jwt, JWTError
 from fastapi import Depends, APIRouter, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
+from email_validator import validate_email, normalize_email
+
 
 from auth.database import get_db
 from auth.schemas import (Register, UserResponse, Token, Login, VerifyEmail, OtpRequest,
@@ -72,8 +74,11 @@ async def token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
 
 @router.post('/signup', summary="Create new user", response_model=UserResponse)
 async def create_user(register_data: Register, db: Session = Depends(get_db)):
+    # Normalize email address
+    normalized_email = normalize_email(register_data.email)
+    
     # Check if the user already exists
-    user = get_user_by_email(register_data.email, db)
+    user = get_user_by_email(normalized_email, db)
 
     if user and user.email_verified:
         raise HTTPException(status_code=400, detail="User already exists")
@@ -107,8 +112,11 @@ async def create_user(register_data: Register, db: Session = Depends(get_db)):
 
 @router.post('/verify-otp', summary="Verify email with OTP")
 async def verify_otp(verify_data: VerifyEmail, db: Session = Depends(get_db)):
-    # Retrieve the user by email
-    user = get_user_by_email(verify_data.email, db)
+    # Normalize email address
+    normalized_email = normalize_email(verify_data.email)
+    
+    # Get user from the database
+    user = get_user_by_email(normalized_email, db)
     
     # Check if the user exists
     if not user:
@@ -135,8 +143,11 @@ async def verify_otp(verify_data: VerifyEmail, db: Session = Depends(get_db)):
 
 @router.post("/login")
 async def login(data: Login, db: Session = Depends(get_db)):
-    #get user from the database
-    user = get_user_by_email(data.email, db)
+    # Normalize email address
+    normalized_email = normalize_email(data.email)
+    
+    # Get user from the database
+    user = get_user_by_email(normalized_email, db)
     
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -170,8 +181,11 @@ async def request_reset_password_otp(request_data: OtpRequest, db: Session = Dep
     # check Type is valid
         raise HTTPException(status_code=401, detail="Type not valid, Choose type [verify or forgot]")
 
-    #get user from the database
-    user = get_user_by_email(request_data.email, db)
+    # Normalize email address
+    normalized_email = normalize_email(request_data.email)
+    
+    # Get user from the database
+    user = get_user_by_email(normalized_email, db)
     
     # Check if the user exists
     if not user:
@@ -191,8 +205,11 @@ async def request_reset_password_otp(request_data: OtpRequest, db: Session = Dep
 
 @router.post('/reset-password', summary="Reset password with OTP")
 async def reset_password_with_otp(request_data: ResetPasswordRequest, db: Session = Depends(get_db)):
-    # Retrieve the user by email
-    user = get_user_by_email(request_data.email, db)
+    # Normalize email address
+    normalized_email = normalize_email(request_data.email)
+    
+    # Get user from the database
+    user = get_user_by_email(normalized_email, db)
     
     # Check if the user exists
     if not user:
