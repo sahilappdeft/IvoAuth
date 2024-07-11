@@ -7,8 +7,6 @@ from jose import jwt, JWTError
 from fastapi import Depends, APIRouter, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
-from email_validator import validate_email, normalize_email
-
 
 from auth.database import get_db
 from auth.schemas import (Register, UserResponse, Token, Login, VerifyEmail, OtpRequest,
@@ -16,7 +14,7 @@ from auth.schemas import (Register, UserResponse, Token, Login, VerifyEmail, Otp
                         )
 from auth.services import get_user_by_email, add_user, update_user_password, create_or_update_otp, get_otp, get_user_by_user_id
 from auth.utility.jwt import create_access_token, create_refresh_token, JWT_SECRET_KEY
-from auth.utility.utilis import generateOTP, verify_password
+from auth.utility.utilis import generateOTP, verify_password, normalize_email
 from .models import User, OtpType
 
 router = APIRouter()
