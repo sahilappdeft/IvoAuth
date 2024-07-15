@@ -87,7 +87,6 @@ async def create_user(register_data: Register, db: Session = Depends(get_db)):
     if not user:
         # Create the new user
         user = add_user(register_data, db)
-    
     # create the otp for user
     user_otp = create_or_update_otp(user, otp, "verify", db)
 
@@ -104,6 +103,7 @@ async def create_user(register_data: Register, db: Session = Depends(get_db)):
         "email_verified": user.email_verified,
         "otp": user_otp.otp if user_otp.type == "verify" else None  # Include OTP only if the type matches the requested OTP type
     }
+    print(user_response_data, ":P:P:P:P:P:")
 
     return user_response_data
 

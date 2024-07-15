@@ -27,9 +27,11 @@ def add_user(user: Register, db: Session) -> Optional[User]:
         email=normalized_email,
         password=user.password,  # Assuming this is handled securely
         first_name=user.first_name,
-        last_name=user.last_name
+        last_name=user.last_name,
+        email_verified = user.email_verified
     )
     
+    print(user.email_verified, "::::user.email_verified")
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
