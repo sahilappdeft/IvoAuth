@@ -79,7 +79,7 @@ async def create_user(register_data: Register, db: Session = Depends(get_db)):
     user = get_user_by_email(normalized_email, db)
 
     if user and user.email_verified:
-        raise HTTPException(status_code=400, detail="User already exists")
+        raise HTTPException(status_code=400, detail="User with this email already exists")
     
      # Generate OTP
     otp = generateOTP()
@@ -215,7 +215,6 @@ async def reset_password_with_otp(request_data: ResetPasswordRequest, db: Sessio
         raise HTTPException(status_code=404, detail="User not found")
     
     # Check if new password and confirm password match
-    print(request_data.password, request_data.confirm_password, ":::::::::::::::::")
     if request_data.password != request_data.confirm_password:
         raise HTTPException(status_code=400, detail="New password and confirm password do not match")
     
