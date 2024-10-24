@@ -1,4 +1,5 @@
 import ast
+from typing import List
 
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
@@ -151,6 +152,12 @@ async def login(data: Login, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
+    if user.is_blocked:
+        raise HTTPException(
+            status_code=401,
+            detail="You have been blocked by the admin. Please contact support for further details."
+        )
+        
     if not user.email_verified:
         # Check if user email_verified.
         raise HTTPException(status_code=401, detail="Please verify your email first")
@@ -249,3 +256,39 @@ def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+
+@router.post('/user-block/', response_model=List[int])
+def block_users(user_ids: List[int], db: Session = Depends(get_db)):
+    # Perform a bulk update to set is_blocked = True for all users with the given IDs
+    result = db.query(User).filter(User.id.in_(user_ids)).update(
+        {User.is_blocked: True}, synchronize_session=False
+    )
+
+    print(result, "::::::::::::::::OOO")
+    # Commit the changes to the database
+    db.commit()
+
+    if result == 0:
+        raise HTTPException(status_code=404, detail="No users found for the provided IDs")
+
+    # Return the list of blocked user IDs as a confirmation
+    return user_ids
+
+
+@router.post('/user-unblock/', response_model=List[int])
+def block_users(user_ids: List[int], db: Session = Depends(get_db)):
+    # Perform a bulk update to set is_blocked = True for all users with the given IDs
+    result = db.query(User).filter(User.id.in_(user_ids)).update(
+        {User.is_blocked: False}, synchronize_session=False
+    )
+
+    print(result, "::::::::::::::::OOO")
+    # Commit the changes to the database
+    db.commit()
+
+    if result == 0:
+        raise HTTPException(status_code=404, detail="No users found for the provided IDs")
+
+    # Return the list of blocked user IDs as a confirmation
+    return user_ids
