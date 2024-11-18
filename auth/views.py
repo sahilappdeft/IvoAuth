@@ -11,7 +11,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 from auth.database import get_db
 from auth.schemas import (Register, UserResponse, Token, Login, VerifyEmail, OtpRequest,
-                           ResetPasswordRequest, ChangePasswordRequest
+                           ResetPasswordRequest, ChangePasswordRequest, SetPasswordRequest
                         )
 from auth.services import get_user_by_email, add_user, update_user_password, create_or_update_otp, get_otp, get_user_by_user_id
 from auth.utility.jwt import create_access_token, create_refresh_token, JWT_SECRET_KEY
@@ -104,8 +104,7 @@ async def create_user(register_data: Register, db: Session = Depends(get_db)):
         "email_verified": user.email_verified,
         "otp": user_otp.otp if user_otp.type == "verify" else None  # Include OTP only if the type matches the requested OTP type
     }
-    print(user_response_data, ":P:P:P:P:P:")
-
+    
     return user_response_data
 
 
@@ -114,7 +113,6 @@ async def verify_otp(verify_data: VerifyEmail, db: Session = Depends(get_db)):
     # Normalize email address
     normalized_email = normalize_email(verify_data.email)
     
-    print(normalized_email, ":::::::::::::::::::::")
     # Get user from the database
     user = get_user_by_email(normalized_email, db)
     
@@ -249,6 +247,26 @@ async def reset_password(change_password_data: ChangePasswordRequest, db: Sessio
     
     return {"message": "Password reset successfully"}
 
+@router.post('/set-password/{user_id}/', summary="set password")
+async def set_password(user_id: int, request_data: SetPasswordRequest, db: Session = Depends(get_db)):
+    # get user
+    user = get_user_by_user_id(user_id, db)
+    
+    # Check if the user exists
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Check if new password and confirm password match
+    if request_data.password != request_data.confirm_password:
+        raise HTTPException(status_code=400, detail="New password and confirm password do not match")
+    
+    # Update user's password
+    update_user_password(user, request_data.password, db)
+
+    #set otp as none
+    db.commit()
+    
+    return {"message": "Password setup successfully"}
 
 @router.get('/user/{user_id}/', response_model=UserResponse)
 def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
@@ -265,7 +283,6 @@ def block_users(user_ids: List[int], db: Session = Depends(get_db)):
         {User.is_blocked: True}, synchronize_session=False
     )
 
-    print(result, "::::::::::::::::OOO")
     # Commit the changes to the database
     db.commit()
 
@@ -283,7 +300,6 @@ def block_users(user_ids: List[int], db: Session = Depends(get_db)):
         {User.is_blocked: False}, synchronize_session=False
     )
 
-    print(result, "::::::::::::::::OOO")
     # Commit the changes to the database
     db.commit()
 

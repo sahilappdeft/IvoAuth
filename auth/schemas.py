@@ -55,6 +55,10 @@ class ResetPasswordRequest(BaseModel):
     email: EmailStr
     password: str
     confirm_password: str
+    
+class SetPasswordRequest(BaseModel):
+    password: str
+    confirm_password: str
 
 class ChangePasswordRequest(BaseModel):
     old_password: str
