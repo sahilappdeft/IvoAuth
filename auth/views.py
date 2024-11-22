@@ -80,6 +80,9 @@ async def create_user(register_data: Register, db: Session = Depends(get_db)):
     # Check if the user already exists
     user = get_user_by_email(normalized_email, db)
 
+    if user and not user.is_active:
+        raise HTTPException(status_code=400, detail="User with this email is inactivate by admin")
+
     if user and user.email_verified:
         raise HTTPException(status_code=400, detail="User with this email already exists")
     
@@ -161,7 +164,6 @@ async def login(data: Login, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=401,
             detail="You have been removed from the compamy."
-
         )
         
     if not user.email_verified:
