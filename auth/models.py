@@ -23,6 +23,7 @@ class User(Model):
     password = Column(String(128), nullable=False)
     email_verified = Column(Boolean, default=False)
     is_blocked = Column(Boolean, default=False)
+    is_active = Column(Boolean, default=True)
     
     otp_types = relationship("OtpType", back_populates="user")  # Relationship definition
 

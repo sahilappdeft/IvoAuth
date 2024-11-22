@@ -11,7 +11,8 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 from auth.database import get_db
 from auth.schemas import (Register, UserResponse, Token, Login, VerifyEmail, OtpRequest,
-                           ResetPasswordRequest, ChangePasswordRequest, SetPasswordRequest
+                           ResetPasswordRequest, ChangePasswordRequest, SetPasswordRequest,
+                           ActiveInactiveRequest
                         )
 from auth.services import get_user_by_email, add_user, update_user_password, create_or_update_otp, get_otp, get_user_by_user_id
 from auth.utility.jwt import create_access_token, create_refresh_token, JWT_SECRET_KEY
@@ -155,6 +156,13 @@ async def login(data: Login, db: Session = Depends(get_db)):
             status_code=401,
             detail="You have been blocked by the admin. Please contact support for further details."
         )
+    
+    if not user.is_active:
+        raise HTTPException(
+            status_code=401,
+            detail="You have been removed from the compamy."
+
+        )
         
     if not user.email_verified:
         # Check if user email_verified.
@@ -274,6 +282,28 @@ def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+@router.get('/user-active-inactive/{user_id}/', response_model=ActiveInactiveRequest)
+def toggle_user_active_status(user_id: int, db: Session = Depends(get_db)):
+    # Retrieve user from the database
+    user = db.query(User).filter(User.id == user_id).first()
+    
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Toggle the is_active status
+    user.is_active = not user.is_active
+    
+    # Save the changes
+    db.add(user)  # Ensures the user is tracked in the session
+    db.commit()
+    db.refresh(user)  # Optional: Refresh the instance with updated data from the database
+    
+    # Return the updated user
+    return ActiveInactiveRequest(
+        id=user.id,
+        is_active=user.is_active
+    )
 
 
 @router.post('/user-block/', response_model=List[int])

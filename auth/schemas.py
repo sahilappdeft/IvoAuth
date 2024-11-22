@@ -64,3 +64,7 @@ class ChangePasswordRequest(BaseModel):
     old_password: str
     new_password: str
     confirm_password: str
+    
+
+class ActiveInactiveRequest(BaseModel):
+    is_active: Optional[bool] = True
