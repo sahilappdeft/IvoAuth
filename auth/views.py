@@ -285,7 +285,7 @@ def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
-@router.get('/user-active-inactive/{user_id}/', response_model=ActiveInactiveRequest)
+@router.post('/user-active-inactive/{user_id}/', response_model=ActiveInactiveRequest)
 def toggle_user_active_status(user_id: int, db: Session = Depends(get_db)):
     # Retrieve user from the database
     user = db.query(User).filter(User.id == user_id).first()
