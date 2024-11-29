@@ -340,3 +340,18 @@ def block_users(user_ids: List[int], db: Session = Depends(get_db)):
 
     # Return the list of blocked user IDs as a confirmation
     return user_ids
+
+@router.delete('/users-delete/', response_model=List[int])
+def users_delete(user_ids: List[int], db: Session = Depends(get_db)):
+    # Perform a bulk delete for users with the given IDs
+    users_to_delete = db.query(User).filter(User.id.in_(user_ids)).all()
+    
+    if not users_to_delete:
+        raise HTTPException(status_code=404, detail="No users found with the given IDs")
+
+    for user in users_to_delete:
+        db.delete(user)
+    
+    db.commit()
+
+    return user_ids
