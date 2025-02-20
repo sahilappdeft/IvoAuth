@@ -360,7 +360,7 @@ def users_delete(user_ids: List[int], db: Session = Depends(get_db)):
     return user_ids
 
 @router.post('/update-profile/{user_id}/', summary="Update user profile")
-async def update_profile(
+def update_profile(
     user_id: int,
     first_name: Optional[str] = Form(None),
     last_name: Optional[str] = Form(None),
@@ -370,6 +370,7 @@ async def update_profile(
     # Get user
     user = get_user_by_user_id(user_id, db)
     
+    print(user, "::::::::::::::::::::::::")
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
@@ -379,6 +380,7 @@ async def update_profile(
     if last_name:
         user.last_name = last_name
 
+    print(first_name, last_name, "--------000000000000000", profile_photo)
     # Handle profile photo upload
     if profile_photo:
         file_location = f"uploads/profile_photos/{user_id}_{profile_photo.filename}"
