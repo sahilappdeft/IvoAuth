@@ -68,3 +68,7 @@ class ChangePasswordRequest(BaseModel):
 
 class ActiveInactiveRequest(BaseModel):
     is_active: Optional[bool] = True
+
+class UserUpdate(BaseModel):
+    first_name: Optional[str]
+    last_name: Optional[str]

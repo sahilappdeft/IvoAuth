@@ -4,7 +4,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
 if os.getcwd() == "/home/ubuntu/IvoAuth":
-    print("*********************")
     # Encode the password
     password = "Psdnj@Eecezc3233r"
     encoded_password = quote_plus(password)

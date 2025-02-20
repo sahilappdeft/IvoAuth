@@ -1,11 +1,14 @@
 import ast
-from typing import List
+import os
+import shutil
+
+from typing import List, Optional
 
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from jose import jwt, JWTError
 
-from fastapi import Depends, APIRouter, HTTPException, status
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 
@@ -355,3 +358,35 @@ def users_delete(user_ids: List[int], db: Session = Depends(get_db)):
     db.commit()
 
     return user_ids
+
+@router.post('/update-profile/{user_id}/', summary="Update user profile")
+async def update_profile(
+    user_id: int,
+    first_name: Optional[str] = Form(None),
+    last_name: Optional[str] = Form(None),
+    profile_photo: Optional[UploadFile] = File(None),
+    db: Session = Depends(get_db)
+):
+    # Get user
+    user = get_user_by_user_id(user_id, db)
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Update fields if provided
+    if first_name:
+        user.first_name = first_name
+    if last_name:
+        user.last_name = last_name
+
+    # Handle profile photo upload
+    if profile_photo:
+        file_location = f"uploads/profile_photos/{user_id}_{profile_photo.filename}"
+        os.makedirs(os.path.dirname(file_location), exist_ok=True)
+        with open(file_location, "wb") as buffer:
+            shutil.copyfileobj(profile_photo.file, buffer)
+        user.profile_photo = file_location
+
+    db.commit()
+
+    return {"message": "Profile updated successfully", "profile_photo": user.profile_photo}
