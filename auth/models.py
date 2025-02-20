@@ -24,7 +24,8 @@ class User(Model):
     email_verified = Column(Boolean, default=False)
     is_blocked = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
-    
+    profile_photo = Column(String(255), nullable=True)
+
     otp_types = relationship("OtpType", back_populates="user")  # Relationship definition
 
 
