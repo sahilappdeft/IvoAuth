@@ -13,6 +13,7 @@ class UserResponse(BaseModel):
     last_name: str
     email_verified: bool
     otp: Optional[str] = None
+    profile_photo: Optional[str] = None
 
     class Config:
         from_attributes = True
