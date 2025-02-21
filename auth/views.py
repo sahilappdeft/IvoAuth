@@ -302,7 +302,6 @@ def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
         "first_name": user.first_name,
         "last_name": user.last_name,
         "email_verified": user.email_verified,
-        "otp": user.otp,
         "profile_photo": profile_photo_url
     }
 
