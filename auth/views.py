@@ -382,7 +382,6 @@ def update_profile(
     first_name: Optional[str] = Form(None),
     last_name: Optional[str] = Form(None),
     profile_photo: Optional[UploadFile] = File(None),
-    profile_photo_url: Optional[str] = Form(None),  # For existing URLs
     db: Session = Depends(get_db)
 ):
     import os
@@ -401,7 +400,6 @@ def update_profile(
     if last_name:
         user.last_name = last_name
 
-    print(profile_photo, "000000000000000", profile_photo_url)
     # Handle profile photo logic
     if profile_photo:
         # New file upload
@@ -410,15 +408,6 @@ def update_profile(
         with open(file_location, "wb") as buffer:
             shutil.copyfileobj(profile_photo.file, buffer)
         user.profile_photo = file_location
-
-    elif profile_photo_url:
-        # If the frontend sends back the same existing URL
-        if profile_photo_url.startswith(BASE_URL):
-            print(profile_photo_url, "-------------", profile_photo_url.replace(BASE_URL, ''))
-            # Remove BASE_URL to store the relative path
-            user.profile_photo = profile_photo_url.replace(BASE_URL, '')
-        else:
-            raise HTTPException(status_code=400, detail="Invalid profile photo URL")
 
     db.commit()
 
