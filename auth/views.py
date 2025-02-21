@@ -401,6 +401,7 @@ def update_profile(
     if last_name:
         user.last_name = last_name
 
+    print(profile_photo, "000000000000000", profile_photo_url)
     # Handle profile photo logic
     if profile_photo:
         # New file upload
