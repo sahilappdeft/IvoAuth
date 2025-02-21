@@ -413,6 +413,7 @@ def update_profile(
     elif profile_photo_url:
         # If the frontend sends back the same existing URL
         if profile_photo_url.startswith(BASE_URL):
+            print(profile_photo_url, "-------------", profile_photo_url.replace(BASE_URL, ''))
             # Remove BASE_URL to store the relative path
             user.profile_photo = profile_photo_url.replace(BASE_URL, '')
         else:
