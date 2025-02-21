@@ -382,12 +382,16 @@ def update_profile(
     first_name: Optional[str] = Form(None),
     last_name: Optional[str] = Form(None),
     profile_photo: Optional[UploadFile] = File(None),
+    profile_photo_url: Optional[str] = Form(None),  # For existing URLs
     db: Session = Depends(get_db)
 ):
+    import os
+    import shutil
+
+    BASE_URL = "http://ivoauth.vinnisoft.com/"
+
     # Get user
     user = get_user_by_user_id(user_id, db)
-    
-    print(user, "::::::::::::::::::::::::")
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
@@ -397,15 +401,26 @@ def update_profile(
     if last_name:
         user.last_name = last_name
 
-    print(first_name, last_name, "--------000000000000000", profile_photo)
-    # Handle profile photo upload
+    # Handle profile photo logic
     if profile_photo:
+        # New file upload
         file_location = f"uploads/profile_photos/{user_id}_{profile_photo.filename}"
         os.makedirs(os.path.dirname(file_location), exist_ok=True)
         with open(file_location, "wb") as buffer:
             shutil.copyfileobj(profile_photo.file, buffer)
         user.profile_photo = file_location
 
+    elif profile_photo_url:
+        # If the frontend sends back the same existing URL
+        if profile_photo_url.startswith(BASE_URL):
+            # Remove BASE_URL to store the relative path
+            user.profile_photo = profile_photo_url.replace(BASE_URL, '')
+        else:
+            raise HTTPException(status_code=400, detail="Invalid profile photo URL")
+
     db.commit()
 
-    return {"message": "Profile updated successfully", "profile_photo": user.profile_photo}
+    return {
+        "message": "Profile updated successfully",
+        "profile_photo": os.path.join(BASE_URL, user.profile_photo) if user.profile_photo else None
+    }
