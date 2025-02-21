@@ -286,7 +286,25 @@ def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
     user = get_user_by_user_id(user_id, db)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    return user
+    
+    BASE_URL = "http://ivoauth.vinnisoft.com/"  # Replace with your actual domain
+
+    # Append full URL to profile_photo if it exists
+    profile_photo_url = (
+        os.path.join(BASE_URL, user.profile_photo) if user.profile_photo else None
+    )
+
+    return {
+        "id": user.id,
+        "created": user.created,
+        "updated": user.updated,
+        "email": user.email,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "email_verified": user.email_verified,
+        "otp": user.otp,
+        "profile_photo": profile_photo_url
+    }
 
 @router.post('/user-active-inactive/{user_id}/', response_model=ActiveInactiveRequest)
 def toggle_user_active_status(user_id: int, db: Session = Depends(get_db)):
