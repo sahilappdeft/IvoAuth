@@ -165,17 +165,17 @@ async def login(data: Login, db: Session = Depends(get_db)):
     
     if not user.is_active:
         raise HTTPException(
-            status_code=401,
+            status_code=400,
             detail="You have been removed from the compamy."
         )
         
     if not user.email_verified:
         # Check if user email_verified.
-        raise HTTPException(status_code=401, detail="Please verify your email first")
+        raise HTTPException(status_code=400, detail="Please verify your email first")
     
     if not user or not verify_password(data.password, user.password):
         # Check if user exists or if the provided password is incorrect
-        raise HTTPException(status_code=401, detail="Incorrect email or password")
+        raise HTTPException(status_code=400, detail="Incorrect email or password")
 
     access_token = create_access_token(subject={"email":user.email, "id": user.id})
     refresh_token = create_refresh_token(subject={"email":user.email, "id": user.id})
